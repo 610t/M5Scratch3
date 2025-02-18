@@ -760,6 +760,7 @@ var de = {
 	"mbitMore.whenButtonEvent": "Wenn Taste [NAME] [EVENT] ist",
 	"mbitMore.buttonIDMenu.a": "A",
 	"mbitMore.buttonIDMenu.b": "B",
+  "mbitMore.buttonIDMenu.c": "C",
 	"mbitMore.buttonEventMenu.down": "unten",
 	"mbitMore.buttonEventMenu.hold": "gehalten",
 	"mbitMore.buttonEventMenu.up": "oben",
@@ -769,7 +770,6 @@ var de = {
 	"mbitMore.isButtonPressed": "Taste [NAME] wird gedrückt",
 	"mbitMore.whenTouchEvent": "Wenn Pin [NAME] [EVENT] wird",
 	"mbitMore.isPinTouched": "Pin [NAME] wird berührt",
-	"mbitMore.touchIDMenu.logo": "Logo",
 	"mbitMore.touchEventMenu.touched": "berührt",
 	"mbitMore.touchEventMenu.hold": "gehalten",
 	"mbitMore.touchEventMenu.released": "losgelassen",
@@ -848,6 +848,7 @@ var ja = {
 	"mbitMore.whenButtonEvent": "ボタン [NAME] が [EVENT] とき",
 	"mbitMore.buttonIDMenu.a": "A",
 	"mbitMore.buttonIDMenu.b": "B",
+  "mbitMore.buttonIDMenu.c": "C",
 	"mbitMore.buttonEventMenu.down": "押された",
 	"mbitMore.buttonEventMenu.hold": "長押しされた",
 	"mbitMore.buttonEventMenu.up": "離された",
@@ -857,7 +858,6 @@ var ja = {
 	"mbitMore.isButtonPressed": "ボタン [NAME] が押されている",
 	"mbitMore.whenTouchEvent": "ピン [NAME] が [EVENT] とき",
 	"mbitMore.isPinTouched": "ピン [NAME] がタッチされている",
-	"mbitMore.touchIDMenu.logo": "ロゴ",
 	"mbitMore.touchEventMenu.touched": "タッチされた",
 	"mbitMore.touchEventMenu.hold": "長押しされた",
 	"mbitMore.touchEventMenu.released": "離された",
@@ -954,6 +954,7 @@ var translations = {
 	"mbitMore.whenButtonEvent": "[NAME] ボタンが [EVENT] とき",
 	"mbitMore.buttonIDMenu.a": "A",
 	"mbitMore.buttonIDMenu.b": "B",
+  "mbitMore.buttonIDMenu.c": "C",
 	"mbitMore.buttonEventMenu.down": "おされた",
 	"mbitMore.buttonEventMenu.hold": "ながおしされた",
 	"mbitMore.buttonEventMenu.up": "はなされた",
@@ -963,7 +964,6 @@ var translations = {
 	"mbitMore.isButtonPressed": "[NAME] ボタンがおされている",
 	"mbitMore.whenTouchEvent": "ピン [NAME] が [EVENT] とき",
 	"mbitMore.isPinTouched": "ピン [NAME] がタッチされている",
-	"mbitMore.touchIDMenu.logo": "ロゴ",
 	"mbitMore.touchEventMenu.touched": "タッチされた",
 	"mbitMore.touchEventMenu.hold": "ながおしされた",
 	"mbitMore.touchEventMenu.released": "はなされた",
@@ -3785,10 +3785,10 @@ var MbitMorePinMode = {
 var MbitMoreButtonID = {
   1: 'A',
   2: 'B',
+  3: 'C',
   100: 'P0',
   101: 'P1',
   102: 'P2',
-  121: 'LOGO'
 };
 
 /**
@@ -3802,7 +3802,7 @@ var MbitMoreButtonStateIndex = {
   P2: 2,
   A: 3,
   B: 4,
-  LOGO: 5
+  C: 5
 };
 
 /**
@@ -5136,7 +5136,7 @@ var MbitMoreButtonName = {
   P2: 'P2',
   A: 'A',
   B: 'B',
-  LOGO: 'LOGO'
+  C: 'C'
 };
 
 /**
@@ -5386,6 +5386,13 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
           description: 'label for "B" element in button picker for Microbit More extension'
         }),
         value: MbitMoreButtonName.B
+      }, {
+        text: formatMessage({
+          id: 'mbitMore.buttonIDMenu.c',
+          default: 'C',
+          description: 'label for "C" element in button picker for Microbit More extension'
+        }),
+        value: MbitMoreButtonName.C
       }];
     }
 
@@ -5451,13 +5458,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
     key: "TOUCH_ID_MENU",
     get: function get() {
       return [{
-        text: formatMessage({
-          id: 'mbitMore.touchIDMenu.logo',
-          default: 'LOGO',
-          description: 'label for "LOGO" element in touch button picker for Microbit More extension'
-        }),
-        value: MbitMoreButtonName.LOGO
-      }, {
         text: 'P0',
         value: MbitMoreButtonName.P0
       }, {
@@ -5843,7 +5843,7 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
             NAME: {
               type: ArgumentType$1.STRING,
               menu: 'touchIDMenu',
-              defaultValue: MbitMoreButtonName.LOGO
+              defaultValue: MbitMoreButtonName.P0
             },
             EVENT: {
               type: ArgumentType$1.STRING,
@@ -5863,7 +5863,7 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
             NAME: {
               type: ArgumentType$1.STRING,
               menu: 'touchIDMenu',
-              defaultValue: MbitMoreButtonName.LOGO
+              defaultValue: MbitMoreButtonName.P0
             }
           }
         }, '---', {
@@ -6411,9 +6411,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
     value: function whenTouchEvent(args, util) {
       var _this3 = this;
       var buttonName = args.NAME;
-      if (buttonName === MbitMoreButtonName.LOGO) {
-        return this.whenButtonEvent(args);
-      }
       if (this.microbit.isPinTouchMode(MbitMoreButtonPinIndex[buttonName])) {
         return this.whenButtonEvent(args);
       }
@@ -6436,9 +6433,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
     value: function isPinTouched(args, util) {
       var _this4 = this;
       var buttonName = args.NAME;
-      if (buttonName === MbitMoreButtonName.LOGO) {
-        return this.microbit.isTouched(buttonName);
-      }
       if (this.microbit.isPinTouchMode(MbitMoreButtonPinIndex[buttonName])) {
         return this.microbit.isTouched(buttonName);
       }

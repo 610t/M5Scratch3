@@ -150,7 +150,7 @@ uint8_t motion[] = {
 // ACTION CH 20 byte
 uint8_t action[] = {
   0x01,                    // BUTTON cmd; BUTTON:0x01, GESTURE: 0x02
-  0x01, 0x00,              // Button Name;1:A,2:B,100:P0,101:P1,102:P2,121:LOGO
+  0x01, 0x00,              // Button Name;1:A,2:B,3:C,100:P0,101:P1,102:P2,121:LOGO
   0x00,                    // Event Name;1:DOWN, 2:UP, 3:CLICK, 4:LONG_CLICK, 5:HOLD, 6:DOUBLE_CLICK
   0x00, 0x00, 0x00, 0x00,  // Timestamp
   0x00, 0x00, 0x00, 0x00,
@@ -973,7 +973,7 @@ void sendBtn(uint8_t btnID, uint8_t btn, uint8_t btn_status, uint8_t prev) {
   action[0] = 0x01;   // for Button event
   action[19] = 0x12;  // ACTION_EVENT
 
-  action[1] = btnID;  // btnID 0x01:BtnA, 0x02:BtnB, 121:BtnC(LOGO)
+  action[1] = btnID;  // btnID 0x01:BtnA, 0x02:BtnB, 0x03:BtnC
 
   // Set TimeStamp (Little Endian)
   uint32_t time = (uint32_t)millis();
@@ -1016,7 +1016,7 @@ void loop() {
   }
 
   if (deviceConnected) {
-    // Send notify data for button A, B and C(LOGO).
+    // Send notify data for button A, B and C.
     uint8_t btnA = 0, btnB = 0, btnC = 0,
             btn_statusA = 0, btn_statusB = 0, btn_statusC = 0;
 
@@ -1042,9 +1042,9 @@ void loop() {
     prevB = btn_statusB;
     delay(BUTTON_DELAY);
 
-    //// Button C (LOGO)
-    action[1] = 121;  // LOGO 121
-    sendBtn(121, btnC, btn_statusC, prevC);
+    //// Button C
+    action[1] = 0x03;
+    sendBtn(0x03, btnC, btn_statusC, prevC);
     prevC = btn_statusC;
     delay(BUTTON_DELAY);
 
