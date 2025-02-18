@@ -131,7 +131,7 @@ uint8_t state[] = {
   0x00                     // soundlevel
 };
 
-// MOTION CH 22 byte
+// MOTION CH 24 byte
 uint8_t motion[] = {
   0x00, 0x00,  // pitch
   0x00, 0x00,  // roll
@@ -143,6 +143,7 @@ uint8_t motion[] = {
   0x00, 0x00,  // gz
   0x00, 0x00,  // tx
   0x00, 0x00,  // ty
+  0x00, 0x00,  // enc
   0x00, 0x00   // ??
 };
 
@@ -715,6 +716,7 @@ void updateIMU() {
 }
 
 int16_t tx, ty;
+int16_t enc;
 
 void updateTouchpanel() {
   if (myBoard == m5gfx::board_M5Dial) {
@@ -728,10 +730,17 @@ void updateTouchpanel() {
   }
 }
 
+void updateEncoder() {
+  if (myBoard == m5gfx::board_M5Dial) {
+    enc = M5Dial.Encoder.read();
+  }
+}
+
 class MotionCallbacks : public NimBLECharacteristicCallbacks {
   void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
     updateIMU();
     updateTouchpanel();
+    updateEncoder();
 
     motion[0] = ((int)(pitch * ACC_MULT) & 0xff);
     motion[1] = (((int)(pitch * ACC_MULT) >> 8) & 0xff);
@@ -751,7 +760,9 @@ class MotionCallbacks : public NimBLECharacteristicCallbacks {
     motion[19] = ((tx >> 8) & 0xff);
     motion[20] = (ty & 0xff);
     motion[21] = ((ty >> 8) & 0xff);
-    pCharacteristic->setValue(motion, 24);
+    motion[22] = (enc & 0xff);
+    motion[23] = ((enc >> 8) & 0xff);
+    pCharacteristic->setValue(motion, 26);
 
     // debug print
     char msg[256] = { 0 };

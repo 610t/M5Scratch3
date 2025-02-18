@@ -886,6 +886,7 @@ var ja = {
 	"mbitMore.magneticForce": "磁力 [AXIS]",
 	"mbitMore.acceleration": "加速度 [AXIS]",
 	"mbitMore.touchpanel": "タッチパネル [TOUCHPANEL]",
+  "mbitMore.encoder": "エンコーダ",
 	"mbitMore.pitch": "ピッチ",
 	"mbitMore.roll": "ロール",
 	"mbitMore.soundLevel": "音の大きさ",
@@ -990,6 +991,8 @@ var translations = {
 	"mbitMore.compassHeading": "きたからのかくど",
 	"mbitMore.magneticForce": "じりょく [AXIS]",
 	"mbitMore.acceleration": "かそくど [AXIS]",
+  "mbitMore.touchpanel": "タッチパネル [TOUCHPANEL]",
+  "mbitMore.encoder": "エンコーダ",
 	"mbitMore.pitch": "ピッチ",
 	"mbitMore.roll": "ロール",
 	"mbitMore.soundLevel": "おとのおおきさ",
@@ -3961,6 +3964,7 @@ var MicrobitMore = /*#__PURE__*/function () {
       x: 0,
       y: 0
     };
+    this.encoder = 0;
     this.compassHeading = 0;
     this.magneticForce = {
       x: 0,
@@ -4454,6 +4458,8 @@ var MicrobitMore = /*#__PURE__*/function () {
           // Touchpanel
           _this6.touchpanel.x = dataView.getInt16(18, true);
           _this6.touchpanel.y = dataView.getInt16(20, true);
+          // Encoder
+          _this6.encoder = dataView.getInt16(22, true);
           _this6.resetConnectionTimeout();
           resolve(_this6);
         });
@@ -4515,6 +4521,19 @@ var MicrobitMore = /*#__PURE__*/function () {
         return 0;
       }
       return this.touchpanel[touchpanel];
+    }
+
+    /**
+     * Read the value of encoder.
+     * @return {number} - value of encoder.
+     */
+  }, {
+    key: "readEncoder",
+    value: function readEncoder() {
+      if (!this.isConnected()) {
+        return 0;
+      }
+      return this.encoder;
     }
 
     /**
@@ -5951,6 +5970,14 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
           }),
           blockType: BlockType$1.REPORTER
         }, {
+          opcode: 'getEncoder',
+          text: formatMessage({
+            id: 'mbitMore.encoder',
+            default: 'encoder',
+            description: 'value of encoder'
+          }),
+          blockType: BlockType$1.REPORTER
+        }, {
           opcode: 'getMagneticForce',
           text: formatMessage({
             id: 'mbitMore.magneticForce',
@@ -6779,8 +6806,17 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
     value: function getTouchpanel(args) {
       return this.microbit.readTouchpanel(args.TOUCHPANEL);
     }
-  }, {
 
+    /**
+     * Return the value of encoder.
+     * @return {number} - value of encoder.
+     */
+  }, {
+    key: "getEncoder",
+    value: function getTEncoder() {
+      return this.microbit.readEncoder();
+    }
+  }, {
     /**
      * Return pitch [degrees] of the micro:bit heading direction.
      * @return {number} - degree of pitch.
