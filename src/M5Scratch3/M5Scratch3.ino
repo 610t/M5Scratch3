@@ -717,9 +717,15 @@ void updateIMU() {
 int16_t tx, ty;
 
 void updateTouchpanel() {
-  auto t = M5.Touch.getDetail();
-  tx = t.x;
-  ty = t.y;
+  if (myBoard == m5gfx::board_M5Dial) {
+    auto t = M5Dial.Touch.getDetail();
+    tx = t.x;
+    ty = t.y;
+  } else {
+    auto t = M5.Touch.getDetail();
+    tx = t.x;
+    ty = t.y;
+  }
 }
 
 class MotionCallbacks : public NimBLECharacteristicCallbacks {
