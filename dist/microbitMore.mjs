@@ -885,6 +885,7 @@ var ja = {
 	"mbitMore.compassHeading": "北からの角度",
 	"mbitMore.magneticForce": "磁力 [AXIS]",
 	"mbitMore.acceleration": "加速度 [AXIS]",
+	"mbitMore.touchpanel": "タッチパネル [TOUCHPANEL]",
 	"mbitMore.pitch": "ピッチ",
 	"mbitMore.roll": "ロール",
 	"mbitMore.soundLevel": "音の大きさ",
@@ -3899,6 +3900,16 @@ var AxisSymbol$1 = {
 };
 
 /**
+ * Enum for touchpanel menu options.
+ * @readonly
+ * @enum {string}
+ */
+var TouchpanelSymbol$1 = {
+  X: 'x',
+  Y: 'y'
+};
+
+/**
  * The unit-value of the gravitational acceleration from Micro:bit.
  * @type {number}
  */
@@ -3945,6 +3956,10 @@ var MicrobitMore = /*#__PURE__*/function () {
       x: 0,
       y: 0,
       z: 0
+    };
+    this.touchpanel = {
+      x: 0,
+      y: 0
     };
     this.compassHeading = 0;
     this.magneticForce = {
@@ -4436,6 +4451,9 @@ var MicrobitMore = /*#__PURE__*/function () {
           _this6.magneticForce.x = dataView.getInt16(12, true);
           _this6.magneticForce.y = dataView.getInt16(14, true);
           _this6.magneticForce.z = dataView.getInt16(16, true);
+          // Touchpanel
+          _this6.touchpanel.x = dataView.getInt16(18, true);
+          _this6.touchpanel.y = dataView.getInt16(20, true);
           _this6.resetConnectionTimeout();
           resolve(_this6);
         });
@@ -4483,6 +4501,20 @@ var MicrobitMore = /*#__PURE__*/function () {
         return Math.round(Math.sqrt(Math.pow(this.acceleration.x, 2) + Math.pow(this.acceleration.y, 2) + Math.pow(this.acceleration.z, 2)));
       }
       return this.acceleration[axis];
+    }
+
+    /**
+     * Read the value of touchpanel for the axis.
+     * @param {TouchpanelSymbol} touchpanel - axis of touchpanel.
+     * @return {number} - value of touchpanel.
+     */
+  }, {
+    key: "readTouchpanel",
+    value: function readTouchpanel(touchpanel) {
+      if (!this.isConnected()) {
+        return 0;
+      }
+      return this.touchpanel[touchpanel];
     }
 
     /**
@@ -5169,6 +5201,16 @@ var AxisSymbol = {
 };
 
 /**
+ * Enum for touchpanel menu options.
+ * @readonly
+ * @enum {string}
+ */
+var TouchpanelSymbol = {
+  X: 'x',
+  Y: 'y'
+};
+
+/**
  * Scratch 3.0 blocks to interact with a MicroBit peripheral.
  */
 var MicrobitMoreBlocks = /*#__PURE__*/function () {
@@ -5532,6 +5574,25 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
           description: 'label of absolute value.'
         }),
         value: AxisSymbol.Absolute
+      }];
+    }
+  }, {
+    key: "TOUCHPANEL_MENU",
+    get: function get() {
+      return [{
+        text: formatMessage({
+          id: 'mbitMore.touchpanelMenu.x',
+          default: 'x',
+          description: 'label of X axis.'
+        }),
+        value: TouchpanelSymbol.X
+      }, {
+        text: formatMessage({
+          id: 'mbitMore.touchpanelMenu.y',
+          default: 'y',
+          description: 'label of Y axis.'
+        }),
+        value: TouchpanelSymbol.Y
       }];
     }
 
@@ -5919,6 +5980,21 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
               defaultValue: AxisSymbol.X
             }
           }
+        }, {
+          opcode: 'getTouchpanel',
+          text: formatMessage({
+            id: 'mbitMore.touchpanel',
+            default: 'touchpanel [TOUCHPANEL]',
+            description: 'value of touchpanel on the axis'
+          }),
+          blockType: BlockType$1.REPORTER,
+          arguments: {
+            TOUCHPANEL: {
+              type: ArgumentType$1.STRING,
+              menu: 'touchpanel',
+              defaultValue: TouchpanelSymbol.X
+            }
+          }
         }, '---', {
           opcode: 'getAnalogValue',
           text: formatMessage({
@@ -6204,6 +6280,10 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
           axis: {
             acceptReporters: false,
             items: this.AXIS_MENU
+          },
+          touchpanel: {
+            acceptReporters: false,
+            items: this.TOUCHPANEL_MENU
           },
           pinMode: {
             acceptReporters: false,
@@ -6687,6 +6767,19 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
     value: function getAcceleration(args) {
       return this.microbit.readAcceleration(args.AXIS);
     }
+
+    /**
+     * Return the value of touchpanel on the specified axis.
+     * @param {object} args - the block's arguments.
+     * @param {TouchpanelSymbol} args.TOUCHPANEL - direction to get.
+     * @return {number} - value of touchpanel.
+     */
+  }, {
+    key: "getTouchpanel",
+    value: function getTouchpanel(args) {
+      return this.microbit.readTouchpanel(args.TOUCHPANEL);
+    }
+  }, {
 
     /**
      * Return pitch [degrees] of the micro:bit heading direction.

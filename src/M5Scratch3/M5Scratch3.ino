@@ -131,7 +131,7 @@ uint8_t state[] = {
   0x00                     // soundlevel
 };
 
-// MOTION CH 18 byte
+// MOTION CH 22 byte
 uint8_t motion[] = {
   0x00, 0x00,  // pitch
   0x00, 0x00,  // roll
@@ -141,6 +141,8 @@ uint8_t motion[] = {
   0x00, 0x00,  // gx
   0x00, 0x00,  // gy
   0x00, 0x00,  // gz
+  0x00, 0x00,  // tx
+  0x00, 0x00,  // ty
   0x00, 0x00   // ??
 };
 
@@ -712,9 +714,18 @@ void updateIMU() {
   iaz = (int16_t)(az * ACC_MULT);
 }
 
+int16_t tx, ty;
+
+void updateTouchpanel() {
+  auto t = M5.Touch.getDetail();
+  tx = t.x;
+  ty = t.y;
+}
+
 class MotionCallbacks : public NimBLECharacteristicCallbacks {
   void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
     updateIMU();
+    updateTouchpanel();
 
     motion[0] = ((int)(pitch * ACC_MULT) & 0xff);
     motion[1] = (((int)(pitch * ACC_MULT) >> 8) & 0xff);
@@ -726,7 +737,15 @@ class MotionCallbacks : public NimBLECharacteristicCallbacks {
     motion[7] = ((iay >> 8) & 0xff);
     motion[8] = (-iaz & 0xff);
     motion[9] = ((-iaz >> 8) & 0xff);
-    pCharacteristic->setValue(motion, 20);
+    // motion[10-11] = gx;
+    // motion[12-13] = gy;
+    // motion[14-15] = gz;
+    // motion[16-17] = ???;
+    motion[18] = (tx & 0xff);
+    motion[19] = ((tx >> 8) & 0xff);
+    motion[20] = (ty & 0xff);
+    motion[21] = ((ty >> 8) & 0xff);
+    pCharacteristic->setValue(motion, 24);
 
     // debug print
     char msg[256] = { 0 };
