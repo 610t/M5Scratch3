@@ -878,6 +878,7 @@ var ja = {
 	"mbitMore.gesturesMenu.shake": "ゆさぶられた",
 	"mbitMore.displayMatrix": "パターン [MATRIX] を表示する",
 	"mbitMore.displayText": "文字 [TEXT] を [DELAY] ミリ秒間隔で流す",
+	"mbitMore.setLED": "LED を [LED] の明るさでで点灯する",
 	"mbitMore.clearDisplay": "画面を消す",
 	"mbitMore.isPinHigh": "ピン [PIN] がハイである",
 	"mbitMore.lightLevel": "明るさ",
@@ -984,6 +985,7 @@ var translations = {
 	"mbitMore.gesturesMenu.shake": "ゆさぶられた",
 	"mbitMore.displayMatrix": "パターン [MATRIX] をひょうじする",
 	"mbitMore.displayText": "もじ [TEXT] を [DELAY] ミリびょうかんかくでながす",
+	"mbitMore.setLED": "LED を [LED] のあかるさでつける",
 	"mbitMore.clearDisplay": "がめんをけす",
 	"mbitMore.isPinHigh": "ピン [PIN] がハイである",
 	"mbitMore.lightLevel": "あかるさ",
@@ -3712,7 +3714,8 @@ var BLECommand = {
   CMD_PIN: 0x01,
   CMD_DISPLAY: 0x02,
   CMD_AUDIO: 0x03,
-  CMD_DATA: 0x04
+  CMD_DATA: 0x04,
+  CMD_LED: 0x05
 };
 
 /**
@@ -4148,6 +4151,21 @@ var MicrobitMore = /*#__PURE__*/function () {
         message: new Uint8Array([].concat(_toConsumableArray$1(matrix[3]), _toConsumableArray$1(matrix[4])))
       }];
       return this.sendCommandSet(cmdSet, util);
+    }
+
+    /**
+     * Set LED brightness of the internal LED.
+     * @param {number} led_value - brightness of the LED
+     * @param {BlockUtility} util - utility object provided from the runtime
+     * @return {?Promise} a Promise that resolves when command sending done or undefined if this process was yield.
+     */
+  }, {
+    key: "setLED",
+    value: function setLED(led_value, util) {
+      return this.sendCommandSet([{
+        id: BLECommand.CMD_LED << 5,
+        message: new Uint8Array([led_value])
+      }], util);
     }
 
     /**
@@ -5914,6 +5932,20 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
             }
           }
         }, {
+          opcode: 'setLED',
+          text: formatMessage({
+            id: 'mbitMore.setLED',
+            default: 'set LED [LED]',
+            description: 'LED brightness onthe M5Stack LED'
+          }),
+          blockType: BlockType$1.COMMAND,
+          arguments: {
+            LED: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 0
+            }
+          }
+        }, {
           opcode: 'displayClear',
           text: formatMessage({
             id: 'mbitMore.clearDisplay',
@@ -6557,6 +6589,20 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
       });
     }
 
+    /**
+     * Turn all 5x5 matrix LEDs off.
+     * @param {object} args - the block's arguments.
+     * @param {object} util - utility object provided by the runtime.
+     * @return {Promise} - a Promise that resolves after a tick or undefinde if yield.
+     */
+  }, {
+    key: "setLED",
+    value: function setLED(args, util) {
+      hoge
+      var led_level = parseInt(args.LED, 10);
+      led_level = isNaN(led_level) ? 0 : led_level; // Use default brightness of LED if NaN.
+      return this.microbit.setLED(led_level, util);
+    }
     /**
      * Turn all 5x5 matrix LEDs off.
      * @param {object} args - the block's arguments.

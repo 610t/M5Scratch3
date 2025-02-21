@@ -603,18 +603,19 @@ class CmdCallbacks : public NimBLECharacteristicCallbacks {
       display_label_data(label, data, data_val);
     }
 
-    // On and off LED at M5StickC family.
-    // Change the LED brightness level to an integer value labeled "led".
-    if (strcmp(label, "led") == 0) {
-      M5.Power.setLed(constrain(data_val, 0, 255));
-    }
-
     // Set variables for drawing object.
     set_variables(label_str, data_val, data_str);
 
     // Do command: for drawing and stackchan
     label_draw_cmd(label_str, data_str);
     label_stackchan_cmd(label_str, data_str);
+  }
+
+  void cmd_led(const char *cmd_str) {
+    char led_value = cmd_str[1] & 0xff;
+
+    // On and off LED.
+    M5.Power.setLed(constrain(led_value, 0, 255));
   }
 
   void onWrite(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
@@ -656,6 +657,11 @@ class CmdCallbacks : public NimBLECharacteristicCallbacks {
         //// CMD_DATA (only v2)
         log_i("CMD data\n");
         cmd_data(cmd_str);
+        break;
+      case 0x05:
+        //// CMD_LED
+        log_i("CMD LED\n");
+        cmd_led(cmd_str);
         break;
     }
   }
