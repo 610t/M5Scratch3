@@ -1,3 +1,18 @@
+#include <Wire.h>
+
+#include <M5Unified.h>
+#include <M5Dial.h>
+//#include <M5StackUpdater.h>
+
+//// Mic for M5StickC/Plus
+#include <driver/i2s.h>
+
+/// Drawing Function for M5Stack
+#define Draw M5.Lcd
+
+//// BLE related headers.
+#include <NimBLEDevice.h>
+
 //// Global variables.
 // For Stack-chan
 bool stackchan_mode = false;
@@ -28,10 +43,6 @@ enum pin_mode_t {
 
 pin_mode_t pin_mode[17] = { PIN_ANALOG_INPUT };
 
-#include <M5Unified.h>
-#include <M5Dial.h>
-//#include <M5StackUpdater.h>
-
 //// Global variables for M5Stack.
 // Board name
 m5::board_t myBoard = m5gfx::board_unknown;
@@ -43,9 +54,6 @@ m5::board_t myBoard = m5gfx::board_unknown;
 #define LED_DATA_PIN 27
 CRGB leds[NUM_LEDS];
 #endif
-
-//// Mic for M5StickC/Plus
-#include <driver/i2s.h>
 
 #define PIN_CLK 0
 #define PIN_DATA 34
@@ -92,14 +100,6 @@ void mic_record_task(void *arg) {
     vTaskDelay(100 / portTICK_RATE_MS);
   }
 }
-
-#include <Wire.h>
-
-/// Drawing Function for M5Stack or Wio Terminal.
-#define Draw M5.Lcd
-
-//// BLE related headers.
-#include <NimBLEDevice.h>
 
 //// BLE characteristics.
 #define MBIT_MORE_SERVICE "0b50f3e4-607f-4151-9091-7d008d6ffc5c"
@@ -965,6 +965,7 @@ void setup_BLE() {
 void setup() {
   Serial.begin(115200);
   Serial2.begin(115200);
+  Wire.begin();
 
   setup_M5Stack();
   screen_w = M5.Lcd.width();
