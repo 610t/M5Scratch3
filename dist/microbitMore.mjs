@@ -6590,15 +6590,15 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
     }
 
     /**
-     * Turn all 5x5 matrix LEDs off.
+     * Turn internel LED on/off.
      * @param {object} args - the block's arguments.
+     * @param {string} args.LED - The brightness of LED.
      * @param {object} util - utility object provided by the runtime.
      * @return {Promise} - a Promise that resolves after a tick or undefinde if yield.
      */
   }, {
     key: "setLED",
     value: function setLED(args, util) {
-      hoge
       var led_level = parseInt(args.LED, 10);
       led_level = isNaN(led_level) ? 0 : led_level; // Use default brightness of LED if NaN.
       return this.microbit.setLED(led_level, util);
