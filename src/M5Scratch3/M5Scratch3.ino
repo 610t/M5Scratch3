@@ -27,8 +27,8 @@ static union {
   float f;
 } cd;
 
-// PortB A/D I/O, GPIO I/O, PWM, Servo, etc.
-int pin[17];  // Microbit More can handle P0-P16.
+// M5Stack can handle PortA, PortB, PortC
+int pin[6];
 
 enum pin_mode_t {
   PIN_ANALOG_INPUT,
@@ -41,7 +41,7 @@ enum pin_mode_t {
   PIN_EVENT
 };
 
-pin_mode_t pin_mode[17] = { PIN_ANALOG_INPUT };
+pin_mode_t pin_mode[6] = { PIN_ANALOG_INPUT };
 
 //// Global variables for M5Stack.
 // Board name
@@ -111,7 +111,12 @@ void mic_record_task(void *arg) {
 #define MBIT_MORE_CH_ANALOG_IN_P0 "0b500120-607f-4151-9091-7d008d6ffc5c"  // R
 #define MBIT_MORE_CH_ANALOG_IN_P1 "0b500121-607f-4151-9091-7d008d6ffc5c"  // R
 #define MBIT_MORE_CH_ANALOG_IN_P2 "0b500122-607f-4151-9091-7d008d6ffc5c"  // R
-#define MBIT_MORE_CH_MESSAGE "0b500130-607f-4151-9091-7d008d6ffc5c"       // R : only for v2
+#define MBIT_MORE_CH_ANALOG_IN_P3 "0b500123-607f-4151-9091-7d008d6ffc5c"  // R
+/* UART
+#define MBIT_MORE_CH_ANALOG_IN_P4 "0b500124-607f-4151-9091-7d008d6ffc5c"  // R
+#define MBIT_MORE_CH_ANALOG_IN_P5 "0b500125-607f-4151-9091-7d008d6ffc5c"  // R
+*/
+#define MBIT_MORE_CH_MESSAGE "0b500130-607f-4151-9091-7d008d6ffc5c"  // R : only for v2
 #define ADVERTISING_STRING "BBC micro:bit [m5scr]"
 
 /// Data of channels.
@@ -166,7 +171,7 @@ uint8_t action[] = {
 uint8_t analog[] = { 0x00, 0x00 };
 
 NimBLEServer *pServer = NULL;
-NimBLECharacteristic *pCharacteristic[9] = { 0 };
+NimBLECharacteristic *pCharacteristic[10] = { 0 };
 bool deviceConnected = false;
 
 // for pixel pattern
@@ -671,7 +676,7 @@ class CmdCallbacks : public NimBLECharacteristicCallbacks {
 class StateCallbacks : public NimBLECharacteristicCallbacks {
   void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
     float temp = 0;
-    int r0 = 0, r1 = 0;
+    int r0 = 0, r1 = 0, r2 = 0, r3 = 0;
 
     // GPIO input from PIN0 & PIN1.
     if (pin_mode[0] == PIN_ANALOG_INPUT) {
@@ -680,13 +685,26 @@ class StateCallbacks : public NimBLECharacteristicCallbacks {
     if (pin_mode[1] == PIN_ANALOG_INPUT) {
       r1 = analogRead(pin[1]);
     }
+    if (pin_mode[2] == PIN_ANALOG_INPUT) {
+      r2 = analogRead(pin[2]);
+    }
+    if (pin_mode[3] == PIN_ANALOG_INPUT) {
+      r3 = analogRead(pin[3]);
+    }
 
     state[0] = 0;
     if (r0 >= 2048) {
-      state[0] |= 0b01;
+      state[0] |= 1 << 0;  // PortA 1 as Pin[0]
     }
     if (r1 >= 2048) {
-      state[0] |= 0b10;
+      state[0] |= 1 << 1;  // PortA 2 as Pin[1]
+    }
+    if (r2 >= 2048) {
+      state[0] |= 1 << 2;  // PortB 1 as Pin[2]
+    }
+    state[1] = 0;
+    if (r3 >= 2048) {
+      state[1] |= 1 << 0;  // PortB 2 as Pin[8]
     }
 
     if (myBoard == m5gfx::board_M5StickC || myBoard == m5gfx::board_M5StickCPlus || myBoard == m5gfx::board_M5StickCPlus2) {
@@ -788,6 +806,27 @@ class ActionCallbacks : public NimBLECharacteristicCallbacks {
 } actionCallbacks;
 
 // for Analog pin
+class AnalogPinCallback : public NimBLECharacteristicCallbacks {
+  void onRead(NimBLECharacteristic *pChar, NimBLEConnInfo &connInfo) override {
+    int r = 0;
+    int p = 0;
+    // Search pin number
+    for (p = 0; p < sizeof(pin); p++) {
+      if (pChar->getProperties() == pCharacteristic[p]->getProperties()) {
+        break;
+      }
+    }
+    r = map(analogRead(pin[p]), 0, 4095, 0, 1023);
+    log_i("Analog Pin[%d] Read:%d\n", p, r);
+    Serial.printf("Analog Pin[%d] Read:%d\n", p, r);
+
+    analog[0] = (r & 0xff);
+    analog[1] = ((r >> 8) & 0xff);
+
+    pChar->setValue(analog, 2);
+  }
+} analogPinCallback;
+
 class AnalogPinCallback0 : public NimBLECharacteristicCallbacks {
   void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
     int r = 0;
@@ -826,6 +865,19 @@ class AnalogPinCallback2 : public NimBLECharacteristicCallbacks {
     pCharacteristic->setValue(analog, 2);
   }
 } analogPinCallback2;
+
+class AnalogPinCallback3 : public NimBLECharacteristicCallbacks {
+  void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
+    int r = 0;
+    r = map(analogRead(pin[3]), 0, 4095, 0, 1023);
+    log_i("Analog Pin3 Read:%d\n", r);
+
+    analog[0] = (r & 0xff);
+    analog[1] = ((r >> 8) & 0xff);
+
+    pCharacteristic->setValue(analog, 2);
+  }
+} analogPinCallback3;
 
 void setup_M5Stack() {
   // Init M5Stack.
@@ -872,7 +924,11 @@ void setup_pins() {
   pin[0] = M5.getPin(m5::pin_name_t::port_a_pin1);
   pin[1] = M5.getPin(m5::pin_name_t::port_a_pin2);
   pin[2] = M5.getPin(m5::pin_name_t::port_b_pin1);
-  pin[8] = M5.getPin(m5::pin_name_t::port_b_pin2);
+  pin[3] = M5.getPin(m5::pin_name_t::port_b_pin2);
+  /* UART
+  pin[4] = M5.getPin(m5::pin_name_t::port_c_pin1);
+  pin[5] = M5.getPin(m5::pin_name_t::port_c_pin2);
+  */
 }
 
 void setup_BLE() {
@@ -950,11 +1006,16 @@ void setup_BLE() {
     NIMBLE_PROPERTY::READ);
   pCharacteristic[7]->setCallbacks(&analogPinCallback2);
 
-  // MESSAGE (only for v2)
   pCharacteristic[8] = pService->createCharacteristic(
+    MBIT_MORE_CH_ANALOG_IN_P3,
+    NIMBLE_PROPERTY::READ);
+  pCharacteristic[8]->setCallbacks(&analogPinCallback3);
+
+  // MESSAGE (only for v2)
+  pCharacteristic[9] = pService->createCharacteristic(
     MBIT_MORE_CH_MESSAGE,
     NIMBLE_PROPERTY::READ);
-  pCharacteristic[8]->setCallbacks(&dummyCallbacks);
+  pCharacteristic[9]->setCallbacks(&dummyCallbacks);
 
   pService->start();
   NimBLEAdvertising *pAdvertising = pServer->getAdvertising();
