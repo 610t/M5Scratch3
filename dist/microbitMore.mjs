@@ -4011,7 +4011,8 @@ var MicrobitMore = /*#__PURE__*/function () {
     this.analogIn.forEach(function (pinIndex) {
       _this.analogValue[pinIndex] = 0;
     });
-    this.gpio = [0, 1, 2, 8, 12, 13, 14, 15, 16];
+    this.gpio = [0, 1, 2, 3];
+    // this.gpio = [0, 1, 2, 3, 4, 5]; // with UART
     this.gpio.forEach(function (pinIndex) {
       _this.digitalLevel[pinIndex] = 0;
     });
@@ -5149,9 +5150,14 @@ var MbitMorePullModeID = {
  * @enum {string}
  */
 var MbitMoreButtonName = {
-  P0: 'P0',
-  P1: 'P1',
-  P2: 'P2',
+  P0: '0',
+  P1: '1',
+  P2: '2',
+  P3: '3',
+  /* UART
+  P4: '?',
+  P5: '?',
+  */
   A: 'A',
   B: 'B',
   C: 'C'
@@ -5554,12 +5560,27 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
   }, {
     key: "GPIO_MENU",
     get: function get() {
-      return this.microbit.gpio.map(function (pinIndex) {
-        return Object.create({
-          text: "P".concat(pinIndex.toString()),
-          value: pinIndex.toString()
-        });
-      });
+      return [{
+        text: 'PortA1',
+        value: MbitMoreButtonName.P0
+      }, {
+        text: 'PortA2',
+        value: MbitMoreButtonName.P1
+      }, {
+        text: 'PortB1',
+        value: MbitMoreButtonName.P2
+      }, {
+        text: 'PortB2',
+        value: MbitMoreButtonName.P3
+        /* UART
+        }, {
+          text: 'PortC1',
+          value: MbitMoreButtonName.P4
+        }, {
+          text: 'PortC2',
+          value: MbitMoreButtonName.P5
+          */
+      }];
     }
   }, {
     key: "DIGITAL_VALUE_MENU",

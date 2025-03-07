@@ -704,7 +704,7 @@ class StateCallbacks : public NimBLECharacteristicCallbacks {
     }
     state[1] = 0;
     if (r3 >= 2048) {
-      state[1] |= 1 << 0;  // PortB 2 as Pin[8]
+      state[0] |= 1 << 3;  // PortB 2 as Pin[3]
     }
 
     if (myBoard == m5gfx::board_M5StickC || myBoard == m5gfx::board_M5StickCPlus || myBoard == m5gfx::board_M5StickCPlus2) {
