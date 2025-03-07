@@ -676,34 +676,19 @@ class CmdCallbacks : public NimBLECharacteristicCallbacks {
 class StateCallbacks : public NimBLECharacteristicCallbacks {
   void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
     float temp = 0;
-    int r0 = 0, r1 = 0, r2 = 0, r3 = 0;
 
-    // GPIO input from PIN0 & PIN1.
-    if (pin_mode[0] == PIN_ANALOG_INPUT) {
-      r0 = analogRead(pin[0]);
-    }
-    if (pin_mode[1] == PIN_ANALOG_INPUT) {
-      r1 = analogRead(pin[1]);
-    }
-    if (pin_mode[2] == PIN_ANALOG_INPUT) {
-      r2 = analogRead(pin[2]);
-    }
-    if (pin_mode[3] == PIN_ANALOG_INPUT) {
-      r3 = analogRead(pin[3]);
-    }
-
+    // GPIO digital input using analog input from PortA1, PortA2, PortB1, and PortB2.
     state[0] = 0;
-    if (r0 >= 2048) {
+    if (analogRead(pin[0]) >= 2048) {
       state[0] |= 1 << 0;  // PortA 1 as Pin[0]
     }
-    if (r1 >= 2048) {
+    if (analogRead(pin[1]) >= 2048) {
       state[0] |= 1 << 1;  // PortA 2 as Pin[1]
     }
-    if (r2 >= 2048) {
+    if (analogRead(pin[2]) >= 2048) {
       state[0] |= 1 << 2;  // PortB 1 as Pin[2]
     }
-    state[1] = 0;
-    if (r3 >= 2048) {
+    if (analogRead(pin[3]) >= 2048) {
       state[0] |= 1 << 3;  // PortB 2 as Pin[3]
     }
 
