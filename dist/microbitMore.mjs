@@ -768,8 +768,6 @@ var de = {
 	"mbitMore.buttonEventMenu.longClick": "lange geklickt",
 	"mbitMore.buttonEventMenu.doubleClick": "doppelt geklickt",
 	"mbitMore.isButtonPressed": "Taste [NAME] wird gedrückt",
-	"mbitMore.whenTouchEvent": "Wenn Pin [NAME] [EVENT] wird",
-	"mbitMore.isPinTouched": "Pin [NAME] wird berührt",
 	"mbitMore.touchEventMenu.touched": "berührt",
 	"mbitMore.touchEventMenu.hold": "gehalten",
 	"mbitMore.touchEventMenu.released": "losgelassen",
@@ -855,8 +853,6 @@ var ja = {
 	"mbitMore.buttonEventMenu.longClick": "ロングクリックされた",
 	"mbitMore.buttonEventMenu.doubleClick": "ダブルクリックされた",
 	"mbitMore.isButtonPressed": "ボタン [NAME] が押されている",
-	"mbitMore.whenTouchEvent": "ピン [NAME] が [EVENT] とき",
-	"mbitMore.isPinTouched": "ピン [NAME] がタッチされている",
 	"mbitMore.touchEventMenu.touched": "タッチされた",
 	"mbitMore.touchEventMenu.hold": "長押しされた",
 	"mbitMore.touchEventMenu.released": "離された",
@@ -909,7 +905,6 @@ var ja = {
 	"mbitMore.pinEventTypeMenu.none": "イベントを受けない",
 	"mbitMore.pinEventTypeMenu.edge": "エッジイベントを受ける",
 	"mbitMore.pinEventTypeMenu.pulse": "パルスイベントを受ける",
-	"mbitMore.pinEventTypeMenu.touch": "タッチイベントを受ける",
 	"mbitMore.whenPinEvent": "ピン [PIN] で [EVENT] イベントが起きたとき",
 	"mbitMore.pinEventMenu.rise": "ライズエッジ",
 	"mbitMore.pinEventMenu.fall": "フォールエッジ",
@@ -960,8 +955,6 @@ var translations = {
 	"mbitMore.buttonEventMenu.longClick": "ロングクリックされた",
 	"mbitMore.buttonEventMenu.doubleClick": "ダブルクリックされた",
 	"mbitMore.isButtonPressed": "[NAME] ボタンがおされている",
-	"mbitMore.whenTouchEvent": "ピン [NAME] が [EVENT] とき",
-	"mbitMore.isPinTouched": "ピン [NAME] がタッチされている",
 	"mbitMore.touchEventMenu.touched": "タッチされた",
 	"mbitMore.touchEventMenu.hold": "ながおしされた",
 	"mbitMore.touchEventMenu.released": "はなされた",
@@ -1014,7 +1007,6 @@ var translations = {
 	"mbitMore.pinEventTypeMenu.none": "イベントをうけない",
 	"mbitMore.pinEventTypeMenu.edge": "エッジイベントをうける",
 	"mbitMore.pinEventTypeMenu.pulse": "パルスイベントをうける",
-	"mbitMore.pinEventTypeMenu.touch": "タッチイベントをうける",
 	"mbitMore.whenPinEvent": "ピン [PIN] で [EVENT] イベントがおきたとき",
 	"mbitMore.pinEventMenu.rise": "ライズエッジ",
 	"mbitMore.pinEventMenu.fall": "フォールエッジ",
@@ -3773,7 +3765,6 @@ var MbitMorePinMode = {
   OUTPUT: 'OUTPUT',
   PWM: 'PWM',
   SERVO: 'SERVO',
-  TOUCH: 'TOUCH'
 };
 
 /**
@@ -3853,8 +3844,7 @@ var MbitMoreSendingDataType = {
  * @enum {number}
  */
 var MbitMoreConfig = {
-  MIC: 0x01,
-  TOUCH: 0x02
+  MIC: 0x01
 };
 
 /**
@@ -4889,59 +4879,6 @@ var MicrobitMore = /*#__PURE__*/function () {
     }
 
     /**
-     * Return whether the pin is touch-mode.
-     * @param {number} pinIndex - indesx of the pin
-     * @return {boolean} - true when it is touch-mode
-     */
-  }, {
-    key: "isPinTouchMode",
-    value: function isPinTouchMode(pinIndex) {
-      return this.config.pinMode[pinIndex] === MbitMorePinMode.TOUCH;
-    }
-
-    /**
-     * Configurate touch mode of the pin.
-     * @param {number} pinIndex - index of the pin as a button.
-     * @param {object} util - utility object provided by the runtime.
-     * @return {?Promise} - a Promise that resolves when configured or undefined if the process was yield.
-     */
-  }, {
-    key: "configTouchPin",
-    value: function configTouchPin(pinIndex, util) {
-      var _this11 = this;
-      if (!this.isConnected()) {
-        return Promise.resolve();
-      }
-      if (this.isPinTouchMode(pinIndex)) {
-        return Promise.resolve();
-      }
-      var sendPromise = this.sendCommandSet([{
-        id: BLECommand.CMD_CONFIG << 5 | MbitMoreConfig.TOUCH,
-        message: new Uint8Array([pinIndex, 1])
-      }], util);
-      if (sendPromise) {
-        return sendPromise.then(function () {
-          _this11.config.pinMode[pinIndex] = MbitMorePinMode.TOUCH;
-        });
-      }
-      return;
-    }
-
-    /**
-     * Return whether the touche-pin is touched.
-     * @param {string} buttonName - ID to check.
-     * @return {boolean} - whether the id is high or not.
-     */
-  }, {
-    key: "isTouched",
-    value: function isTouched(buttonName) {
-      if (!this.isConnected()) {
-        return false;
-      }
-      return this.buttonState[buttonName] === 1;
-    }
-
-    /**
      * Return the last timestamp of the button event or undefined if the event is not received.
      * @param {MbitMoreButtonName} buttonName - name of the button to get the event.
      * @param {MbitMoreButtonEventName} eventName - name of event to get.
@@ -5455,79 +5392,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
         //     value: MbitMoreButtonEventName.DOUBLE_CLICK
       }];
     }
-
-    /**
-     * @return {array} - text and values for each buttons menu element
-     */
-  }, {
-    key: "TOUCH_ID_MENU",
-    get: function get() {
-      return [{
-        text: 'P0',
-        value: MbitMoreButtonName.P0
-      }, {
-        text: 'P1',
-        value: MbitMoreButtonName.P1
-      }, {
-        text: 'P2',
-        value: MbitMoreButtonName.P2
-      }];
-    }
-
-    /**
-     * @return {array} - Menu items for touch event selector.
-     */
-  }, {
-    key: "TOUCH_EVENT_MENU",
-    get: function get() {
-      return [{
-        text: formatMessage({
-          id: 'mbitMore.touchEventMenu.touched',
-          default: 'touched',
-          description: 'label for touched event'
-        }),
-        value: MbitMoreButtonEventName.DOWN
-      }, {
-        text: formatMessage({
-          id: 'mbitMore.touchEventMenu.released',
-          default: 'released',
-          description: 'label for released event'
-        }),
-        value: MbitMoreButtonEventName.UP
-      }, {
-        text: formatMessage({
-          id: 'mbitMore.touchEventMenu.tapped',
-          default: 'tapped',
-          description: 'label for tapped event'
-        }),
-        value: MbitMoreButtonEventName.CLICK
-        // },
-        // // These events are not in use because they are unstable in coal-microbit-v2.
-        // {
-        //     text: formatMessage({
-        //         id: 'mbitMore.touchEventMenu.hold',
-        //         default: 'hold',
-        //         description: 'label for hold event in touch'
-        //     }),
-        //     value: MbitMoreButtonEventName.HOLD
-        // },
-        // {
-        //     text: formatMessage({
-        //         id: 'mbitMore.touchEventMenu.longTapped',
-        //         default: 'long tapped',
-        //         description: 'label for long click event in touch'
-        //     }),
-        //     value: MbitMoreButtonEventName.LONG_CLICK
-        // },
-        // {
-        //     text: formatMessage({
-        //         id: 'mbitMore.touchEventMenu.doubleTapped',
-        //         default: 'double tapped',
-        //         description: 'label for double click event in touch'
-        //     }),
-        //     value: MbitMoreButtonEventName.DOUBLE_CLICK
-      }];
-    }
   }, {
     key: "ANALOG_IN_PINS_MENU",
     get: function get() {
@@ -5864,41 +5728,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
               type: ArgumentType$1.STRING,
               menu: 'buttonIDMenu',
               defaultValue: MbitMoreButtonName.A
-            }
-          }
-        }, {
-          opcode: 'whenTouchEvent',
-          text: formatMessage({
-            id: 'mbitMore.whenTouchEvent',
-            default: 'when pin [NAME] is [EVENT]',
-            description: 'when the selected touch pin on the micro:bit is touched'
-          }),
-          blockType: BlockType$1.HAT,
-          arguments: {
-            NAME: {
-              type: ArgumentType$1.STRING,
-              menu: 'touchIDMenu',
-              defaultValue: MbitMoreButtonName.P0
-            },
-            EVENT: {
-              type: ArgumentType$1.STRING,
-              menu: 'touchEventMenu',
-              defaultValue: MbitMoreButtonEventName.DOWN
-            }
-          }
-        }, {
-          opcode: 'isPinTouched',
-          text: formatMessage({
-            id: 'mbitMore.isPinTouched',
-            default: 'pin [NAME] is touched?',
-            description: 'is the selected pin is touched?'
-          }),
-          blockType: BlockType$1.BOOLEAN,
-          arguments: {
-            NAME: {
-              type: ArgumentType$1.STRING,
-              menu: 'touchIDMenu',
-              defaultValue: MbitMoreButtonName.P0
             }
           }
         }, '---', {
@@ -6321,14 +6150,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
             acceptReporters: false,
             items: this.BUTTON_EVENT_MENU
           },
-          touchIDMenu: {
-            acceptReporters: false,
-            items: this.TOUCH_ID_MENU
-          },
-          touchEventMenu: {
-            acceptReporters: false,
-            items: this.TOUCH_EVENT_MENU
-          },
           gestures: {
             acceptReporters: false,
             items: this.GESTURES_MENU
@@ -6437,51 +6258,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
     value: function isButtonPressed(args) {
       var buttonName = args.NAME;
       return this.microbit.isButtonPressed(buttonName);
-    }
-
-    /**
-     * Test whether the touch event raised at the pin.
-     * @param {object} args - the block's arguments.q
-     * @param {string} args.NAME - name of the pin to catch.
-     * @param {string} args.EVENT - event to catch.
-     * @param {object} util - utility object provided by the runtime.
-     * @return {boolean|Promise<boolean>|undefined} - true if the event raised or promise that or undefinde if yield.
-     */
-  }, {
-    key: "whenTouchEvent",
-    value: function whenTouchEvent(args, util) {
-      var _this3 = this;
-      var buttonName = args.NAME;
-      if (this.microbit.isPinTouchMode(MbitMoreButtonPinIndex[buttonName])) {
-        return this.whenButtonEvent(args);
-      }
-      var configPromise = this.microbit.configTouchPin(MbitMoreButtonPinIndex[buttonName], util);
-      if (!configPromise) return; // This thread was yielded.
-      return configPromise.then(function () {
-        return _this3.whenButtonEvent(args);
-      });
-    }
-
-    /**
-     * Test whether the touch-pin is touched.
-     * @param {object} args - the block's arguments.
-     * @param {string} args.NAME - name of the pin.
-     * @param {object} util - utility object provided by the runtime.
-     * @return {boolean|Promise<boolean>|undefined} - true if touched or promise that or undefinde if yield.
-     */
-  }, {
-    key: "isPinTouched",
-    value: function isPinTouched(args, util) {
-      var _this4 = this;
-      var buttonName = args.NAME;
-      if (this.microbit.isPinTouchMode(MbitMoreButtonPinIndex[buttonName])) {
-        return this.microbit.isTouched(buttonName);
-      }
-      var configPromise = this.microbit.configTouchPin(MbitMoreButtonPinIndex[buttonName], util);
-      if (!configPromise) return; // This thread was yielded.
-      return configPromise.then(function () {
-        return _this4.microbit.isTouched(buttonName);
-      });
     }
 
     /**
