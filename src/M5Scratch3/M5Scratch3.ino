@@ -793,16 +793,17 @@ class ActionCallbacks : public NimBLECharacteristicCallbacks {
 class AnalogPinCallback : public NimBLECharacteristicCallbacks {
   void onRead(NimBLECharacteristic *pChar, NimBLEConnInfo &connInfo) override {
     int r = 0;
-    int p = 0;
+    int c;
     // Search pin number
-    for (p = 0; p < sizeof(pin); p++) {
-      if (pChar->getProperties() == pCharacteristic[p]->getProperties()) {
+    //   Characteristic for analog input start from 5 until 8.
+    for (c = 5; c <= 8; c++) {
+      if (pChar->toString().compare(pCharacteristic[c]->toString()) == 0) {
         break;
       }
     }
-    r = map(analogRead(pin[p]), 0, 4095, 0, 1023);
-    log_i("Analog Pin[%d] Read:%d\n", p, r);
-    Serial.printf("Analog Pin[%d] Read:%d\n", p, r);
+    int pin_num = c - 5;  // Fit for pin number.
+    r = map(analogRead(pin[pin_num]), 0, 4095, 0, 1023);
+    log_i("Analog Pin[%d] Read:%d\n", pin_num, r);
 
     analog[0] = (r & 0xff);
     analog[1] = ((r >> 8) & 0xff);
@@ -810,58 +811,6 @@ class AnalogPinCallback : public NimBLECharacteristicCallbacks {
     pChar->setValue(analog, 2);
   }
 } analogPinCallback;
-
-class AnalogPinCallback0 : public NimBLECharacteristicCallbacks {
-  void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
-    int r = 0;
-    r = map(analogRead(pin[0]), 0, 4095, 0, 1023);
-    log_i("Analog Pin0 Read:%d\n", r);
-
-    analog[0] = (r & 0xff);
-    analog[1] = ((r >> 8) & 0xff);
-
-    pCharacteristic->setValue(analog, 2);
-  }
-} analogPinCallback0;
-
-class AnalogPinCallback1 : public NimBLECharacteristicCallbacks {
-  void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
-    int r = 0;
-    r = map(analogRead(pin[1]), 0, 4095, 0, 1023);
-    log_i("Analog Pin1 Read:%d\n", r);
-
-    analog[0] = (r & 0xff);
-    analog[1] = ((r >> 8) & 0xff);
-
-    pCharacteristic->setValue(analog, 2);
-  }
-} analogPinCallback1;
-
-class AnalogPinCallback2 : public NimBLECharacteristicCallbacks {
-  void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
-    int r = 0;
-    r = map(analogRead(pin[2]), 0, 4095, 0, 1023);
-    log_i("Analog Pin2 Read:%d\n", r);
-
-    analog[0] = (r & 0xff);
-    analog[1] = ((r >> 8) & 0xff);
-
-    pCharacteristic->setValue(analog, 2);
-  }
-} analogPinCallback2;
-
-class AnalogPinCallback3 : public NimBLECharacteristicCallbacks {
-  void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
-    int r = 0;
-    r = map(analogRead(pin[3]), 0, 4095, 0, 1023);
-    log_i("Analog Pin3 Read:%d\n", r);
-
-    analog[0] = (r & 0xff);
-    analog[1] = ((r >> 8) & 0xff);
-
-    pCharacteristic->setValue(analog, 2);
-  }
-} analogPinCallback3;
 
 void setup_M5Stack() {
   // Init M5Stack.
@@ -978,22 +927,22 @@ void setup_BLE() {
   pCharacteristic[5] = pService->createCharacteristic(
     MBIT_MORE_CH_ANALOG_IN_P0,
     NIMBLE_PROPERTY::READ);
-  pCharacteristic[5]->setCallbacks(&analogPinCallback0);
+  pCharacteristic[5]->setCallbacks(&analogPinCallback);
 
   pCharacteristic[6] = pService->createCharacteristic(
     MBIT_MORE_CH_ANALOG_IN_P1,
     NIMBLE_PROPERTY::READ);
-  pCharacteristic[6]->setCallbacks(&analogPinCallback1);
+  pCharacteristic[6]->setCallbacks(&analogPinCallback);
 
   pCharacteristic[7] = pService->createCharacteristic(
     MBIT_MORE_CH_ANALOG_IN_P2,
     NIMBLE_PROPERTY::READ);
-  pCharacteristic[7]->setCallbacks(&analogPinCallback2);
+  pCharacteristic[7]->setCallbacks(&analogPinCallback);
 
   pCharacteristic[8] = pService->createCharacteristic(
     MBIT_MORE_CH_ANALOG_IN_P3,
     NIMBLE_PROPERTY::READ);
-  pCharacteristic[8]->setCallbacks(&analogPinCallback3);
+  pCharacteristic[8]->setCallbacks(&analogPinCallback);
 
   // MESSAGE (only for v2)
   pCharacteristic[9] = pService->createCharacteristic(
