@@ -699,7 +699,6 @@ class StateCallbacks : public NimBLECharacteristicCallbacks {
     }
 
     M5.Imu.getTemp(&temp);                  // get temperature from IMU
-    state[4] = (random(256) & 0xff);        // Random sensor value for lightlevel
     state[5] = ((int)(temp + 128) & 0xff);  // temperature(+128)
     log_i("STATE read %s", (char *)state);
     pCharacteristic->setValue(state, 7);

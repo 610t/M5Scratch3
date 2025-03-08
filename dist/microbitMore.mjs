@@ -792,7 +792,6 @@ var de = {
 	"mbitMore.displayText": "zeige Text [TEXT] mit [DELAY] ms Verzögerung",
 	"mbitMore.clearDisplay": "lösche Display",
 	"mbitMore.isPinHigh": "ist Pin [PIN] hoch?",
-	"mbitMore.lightLevel": "Lichtstärke",
 	"mbitMore.temperature": "Temperatur °C ",
 	"mbitMore.compassHeading": "Kompassrichtung ° ",
 	"mbitMore.magneticForce": "Magnetkraft µT [AXIS]",
@@ -881,7 +880,6 @@ var ja = {
 	"mbitMore.setLED": "LED を [LED] の明るさでで点灯する",
 	"mbitMore.clearDisplay": "画面を消す",
 	"mbitMore.isPinHigh": "ピン [PIN] がハイである",
-	"mbitMore.lightLevel": "明るさ",
 	"mbitMore.temperature": "温度",
 	"mbitMore.compassHeading": "北からの角度",
 	"mbitMore.magneticForce": "磁力 [AXIS]",
@@ -936,7 +934,6 @@ var ja = {
 };
 var pt = {
 	"mbitMore.name": "MicroBit More",
-	"mbitMore.lightLevel": "Intensidade da Luz",
 	"mbitMore.compassHeading": "Está em direção ao Norte",
 	"mbitMore.magneticForce": "Força Magnética [AXIS]",
 	"mbitMore.acceleration": "Aceleração no Eixo[AXIS]",
@@ -988,7 +985,6 @@ var translations = {
 	"mbitMore.setLED": "LED を [LED] のあかるさでつける",
 	"mbitMore.clearDisplay": "がめんをけす",
 	"mbitMore.isPinHigh": "ピン [PIN] がハイである",
-	"mbitMore.lightLevel": "あかるさ",
 	"mbitMore.temperature": "おんど",
 	"mbitMore.compassHeading": "きたからのかくど",
 	"mbitMore.magneticForce": "じりょく [AXIS]",
@@ -1043,7 +1039,6 @@ var translations = {
 },
 	"pt-br": {
 	"mbitMore.name": "MicroBit More",
-	"mbitMore.lightLevel": "Intensidade da Luz",
 	"mbitMore.compassHeading": "Está em direção ao Norte",
 	"mbitMore.magneticForce": "Força Magnética [AXIS]",
 	"mbitMore.acceleration": "Aceleração no Eixo[AXIS]",
@@ -3954,7 +3949,6 @@ var MicrobitMore = /*#__PURE__*/function () {
      */
     this._extensionId = extensionId;
     this.digitalLevel = {};
-    this.lightLevel = 0;
     this.temperature = 0;
     this.soundLevel = 0;
     this.pitch = 0;
@@ -4250,20 +4244,6 @@ var MicrobitMore = /*#__PURE__*/function () {
     }
 
     /**
-     * Read light level from the light sensor.
-     * @param {object} util - utility object provided by the runtime.
-     * @return {number} - value of the light level [0..255].
-     */
-  }, {
-    key: "readLightLevel",
-    value: function readLightLevel() {
-      if (!this.isConnected()) {
-        return 0;
-      }
-      return this.lightLevel;
-    }
-
-    /**
      * Update data of the analog input.
      * @param {number} pinIndex - index of the pin to get value.
      * @param {object} util - utility object provided by the runtime.
@@ -4307,7 +4287,7 @@ var MicrobitMore = /*#__PURE__*/function () {
     }
 
     /**
-     * Update data of digital level, light level, temperature, sound level.
+     * Update data of digital level, temperature, sound level.
      * @return {Promise} - a Promise that resolves updated data holder.
      */
   }, {
@@ -4337,7 +4317,6 @@ var MicrobitMore = /*#__PURE__*/function () {
           Object.keys(MbitMoreButtonStateIndex).forEach(function (name) {
             _this4.buttonState[name] = gpioData >> 24 + MbitMoreButtonStateIndex[name] & 1;
           });
-          _this4.lightLevel = dataView.getUint8(4);
           _this4.temperature = dataView.getUint8(5) - 128;
           _this4.soundLevel = dataView.getUint8(6);
           _this4.resetConnectionTimeout();
@@ -5992,14 +5971,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
           }),
           blockType: BlockType$1.COMMAND
         }, '---', {
-          opcode: 'getLightLevel',
-          text: formatMessage({
-            id: 'mbitMore.lightLevel',
-            default: 'light intensity',
-            description: 'how much the amount of light falling on the LEDs on micro:bit'
-          }),
-          blockType: BlockType$1.REPORTER
-        }, {
           opcode: 'getTemperature',
           text: formatMessage({
             id: 'mbitMore.temperature',
@@ -6664,18 +6635,6 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
     key: "isPinHigh",
     value: function isPinHigh(args) {
       return this.microbit.isPinHigh(parseInt(args.PIN, 10));
-    }
-
-    /**
-     * Get amount of light (0 - 255) on the LEDs.
-     * @param {object} args - the block's arguments.
-     * @return {number} - light level.
-     */
-  }, {
-    key: "getLightLevel",
-    value: function getLightLevel() {
-      var level = this.microbit.readLightLevel();
-      return Math.round(level * 1000 / 255) / 10;
     }
 
     /**
