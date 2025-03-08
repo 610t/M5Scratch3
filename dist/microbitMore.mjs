@@ -3067,6 +3067,7 @@ var SERIAL_CH_ID = {
   '0b500120-607f-4151-9091-7d008d6ffc5c': 0x0120,
   '0b500121-607f-4151-9091-7d008d6ffc5c': 0x0121,
   '0b500122-607f-4151-9091-7d008d6ffc5c': 0x0122,
+  '0b500123-607f-4151-9091-7d008d6ffc5c': 0x0123,
   '0b500130-607f-4151-9091-7d008d6ffc5c': 0x0130
 };
 
@@ -3889,7 +3890,7 @@ var MM_SERVICE = {
   MOTION_CH: '0b500102-607f-4151-9091-7d008d6ffc5c',
   PIN_EVENT_CH: '0b500110-607f-4151-9091-7d008d6ffc5c',
   ACTION_EVENT_CH: '0b500111-607f-4151-9091-7d008d6ffc5c',
-  ANALOG_IN_CH: ['0b500120-607f-4151-9091-7d008d6ffc5c', '0b500121-607f-4151-9091-7d008d6ffc5c', '0b500122-607f-4151-9091-7d008d6ffc5c'],
+  ANALOG_IN_CH: ['0b500120-607f-4151-9091-7d008d6ffc5c', '0b500121-607f-4151-9091-7d008d6ffc5c', '0b500122-607f-4151-9091-7d008d6ffc5c', '0b500123-607f-4151-9091-7d008d6ffc5c'],
   MESSAGE_CH: '0b500130-607f-4151-9091-7d008d6ffc5c'
 };
 
@@ -4006,7 +4007,7 @@ var MicrobitMore = /*#__PURE__*/function () {
      * @private
      */
     this.receivedData = {};
-    this.analogIn = [0, 1, 2];
+    this.analogIn = [0, 1, 2, 3];
     this.analogValue = [];
     this.analogIn.forEach(function (pinIndex) {
       _this.analogValue[pinIndex] = 0;
@@ -5171,7 +5172,8 @@ var MbitMoreButtonName = {
 var MbitMoreButtonPinIndex = {
   P0: 0,
   P1: 1,
-  P2: 2
+  P2: 2,
+  P3: 3
 };
 
 /**
@@ -5550,12 +5552,27 @@ var MicrobitMoreBlocks = /*#__PURE__*/function () {
   }, {
     key: "ANALOG_IN_PINS_MENU",
     get: function get() {
-      return this.microbit.analogIn.map(function (pinIndex) {
-        return Object.create({
-          text: "P".concat(pinIndex.toString()),
-          value: pinIndex.toString()
-        });
-      });
+      return [{
+        text: 'PortA1',
+        value: MbitMoreButtonName.P0
+      }, {
+        text: 'PortA2',
+        value: MbitMoreButtonName.P1
+      }, {
+        text: 'PortB1',
+        value: MbitMoreButtonName.P2
+      }, {
+        text: 'PortB2',
+        value: MbitMoreButtonName.P3
+        /* UART
+        }, {
+          text: 'PortC1',
+          value: MbitMoreButtonName.P4
+        }, {
+          text: 'PortC2',
+          value: MbitMoreButtonName.P5
+          */
+      }];
     }
   }, {
     key: "GPIO_MENU",
